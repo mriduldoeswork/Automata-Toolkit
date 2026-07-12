@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+  Automata Toolkit Entry Point
+  This file establishes the DOM structure. Logic is strictly separated into ES6 modules.
+-->
+<head>
+    <meta charset="UTF-8" />
+    <title>Automata Visualizer</title>
+    <!-- Core Stylesheet -->
+    <link rel="stylesheet" href="styles.css" />
+    <!-- D3.js library for physics-based SVG graph rendering -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+    <!-- === TOP NAVIGATION === -->
+    <div class="top-nav">
+        <h1>Automata Toolkit</h1>
+        <button id="nav-workspace" class="nav-btn active" onclick="uiController.switchView('workspace')">🎨 Workspace</button>
+        <button id="nav-equivalence" class="nav-btn" onclick="uiController.switchView('equivalence')">⚖️ Test Equivalence</button>
+        <button id="nav-help" class="nav-btn" onclick="window.open('help.html', '_blank')">❓ Help & Guide</button>
+    </div>
+
+    <!-- === WORKSPACE VIEW (Primary Visualizer) === -->
+    <div id="workspace-view">
+        
+    <!-- LEFT PANEL: Data Entry and Configuration -->
+    <div id="left-panel">
+        <h2>Automata Configuration</h2>
+
+        <!-- Regular Expression Compiler -->
+        <input type="text" id="regexInput" placeholder="Enter Regex (e.g., a(a|b)*b)" />
+        <button onclick="automataController.convertRegexToEnfa()">Convert Regex to eNFA</button>
+        <button onclick="automataController.complementRegexAction()" style="background-color: #e83e8c;">Complement Regex</button>
+        <br><br>
+
+        <label>Type</label>
+        <select id="typeSelector" onchange="automataController.buildTransitionTable()">
+            <option value="DFA">DFA</option>
+            <option value="NFA">NFA</option>
+            <option value="ENFA">ENFA</option>
+        </select><br><br>
+
+        <p>Note: Multiple values should be comma separated</p>
+
+        <!-- Core Mathematical Definitions -->
+        <label>States</label><br>
+        <input id="statesInput" value="q0,q1,q2" oninput="automataController.buildTransitionTable()"><br><br>
+
+        <label>Alphabet</label><br>
+        <input id="alphabetInput" value="0,1" oninput="automataController.buildTransitionTable()"><br><br>
+
+        <label>Start State</label><br>
+        <input id="startStateInput" value="q0"><br><br>
+
+        <label>Accept States</label><br>
+        <input id="acceptStatesInput" value="q2"><br><br>
+
+        <!-- Container for dynamically injected transition grid -->
+        <div id="transitionTable"></div>
+
+        <!-- Simulation Controls -->
+        <div id="run-controls" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px;">
+            <h3>Run Automata</h3>
+            <label>Input Word</label><br>
+            <input id="wordInput" value="101" oninput="automataController.resetRun()"><br><br>
+            <button onclick="automataController.resetRun()">Reset</button>
+            <button onclick="automataController.stepBackward()">Back</button>
+            <button onclick="automataController.stepForward()">Next</button>
+            <br><br>
+            <div id="status" style="font-weight: bold;"></div>
+        </div>
+
+        <!-- Quick-access cache to restore previous states during multi-step conversions -->
+        <div id="automata-versions" style="margin-top: 20px; border-top: 1px solid #ccc; padding-top: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <h3 style="flex-basis: 100%; margin: 0;">Automaton Versions</h3>
+            <button onclick="uiController.showENFA()">eNFA</button>
+            <button onclick="uiController.showNFA()">NFA</button>
+            <button onclick="uiController.showDFA()">DFA</button>
+            <button onclick="uiController.showMinimizedDFA()">Minimized DFA</button>
+            <button onclick="uiController.showComplementDFA()">Complement DFA</button>
+        </div>
+
+        <!-- File Input/Output Controls -->
+        <div id="import-export-controls"
+            style="margin-bottom: 20px; border-bottom: 1px solid #ccc; padding-bottom: 15px; display: flex; flex-wrap: wrap; gap: 10px;">
+            <h3 style="flex-basis: 100%; margin: 0;">Import export</h3>
+            <input type="file" id="importFileInput" accept=".json" style="display: none;" />
+            <button id="importBtn">Import TXT</button>
+            <button id="exportBtn">Export TXT</button>
+            <button id="exportSvgBtn">Export SVG</button>
+            <button id="exportPngBtn">Export PNG</button>
+        </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: Presentation & Simulation view -->
+    <div id="right-panel">
+        <!-- Dynamic interactive string visualizer -->
+        <div id="tape-container"></div>
+        <!-- D3 SVG rendering target -->
+        <div id="visualization-container">
+            <svg id="svg" width="1000" height="800"></svg>
+        </div>
+    </div>
+    </div>
+
+    <!-- === EQUIVALENCE VIEW (Side-by-side comparison) === -->
+    <div id="equivalence-view">
+        <div class="equivalence-container" style="margin-top: 0; box-shadow: none;">
+            <h2>Language Equivalence & Isomorphism Tester</h2>
+            <div class="equivalence-split">
+                <!-- Representation A -->
+                <div class="equivalence-pane">
+                    <h3>Representation A</h3>
+                    <div class="equiv-input-group">
+                        <label>Input Type:</label>
+                        <select id="equivTypeA" onchange="document.getElementById('fileContainerA').style.display = this.value === 'file' ? 'block' : 'none'; document.getElementById('regexContainerA').style.display = this.value === 'regex' ? 'block' : 'none';">
+                            <option value="file">Automaton/Regex (from .txt file)</option>
+                            <option value="regex">Regular Expression</option>
+                        </select>
+                    </div>
+                    <div id="fileContainerA" class="equiv-input-group">
+                        <input type="file" id="equivFileA" accept=".txt,text/plain">
+                    </div>
+                    <div id="regexContainerA" class="equiv-input-group" style="display:none;">
+                        <input type="text" id="equivRegexA" placeholder="e.g., (a|b)*abb">
+                    </div>
+                </div>
+
+                <!-- Representation B -->
+                <div class="equivalence-pane">
+                    <h3>Representation B</h3>
+                    <div class="equiv-input-group">
+                        <label>Input Type:</label>
+                        <select id="equivTypeB" onchange="document.getElementById('fileContainerB').style.display = this.value === 'file' ? 'block' : 'none'; document.getElementById('regexContainerB').style.display = this.value === 'regex' ? 'block' : 'none';">
+                            <option value="file">Automaton/Regex (from .txt file)</option>
+                            <option value="regex">Regular Expression</option>
+                        </select>
+                    </div>
+                    <div id="fileContainerB" class="equiv-input-group">
+                        <input type="file" id="equivFileB" accept=".txt,text/plain">
+                    </div>
+                    <div id="regexContainerB" class="equiv-input-group" style="display:none;">
+                        <input type="text" id="equivRegexB" placeholder="e.g., (a|b)*abb">
+                    </div>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <button onclick="window.equivalenceController.handleEquivalenceTest()">Test Equivalence</button>
+            </div>
+
+            <!-- Area to inject BFS Counter-example text -->
+            <div id="equivResult"></div>
+
+            <!-- Minimal DFA Visualizations for Equivalence Test -->
+            <div id="equivVisualizations" style="display: none; margin-top: 20px;">
+                <div class="equivalence-split">
+                    <div class="equivalence-pane" style="text-align: center; background: #ffffff;">
+                        <h4 style="margin-top: 0; color: var(--primary-color);">Minimal DFA - Automaton A</h4>
+                        <svg id="equivSvgA" width="400" height="300" style="width: 100%; border: 1px solid #dee2e6; border-radius: 4px;"></svg>
+                    </div>
+                    <div class="equivalence-pane" style="text-align: center; background: #ffffff;">
+                        <h4 style="margin-top: 0; color: var(--primary-color);">Minimal DFA - Automaton B</h4>
+                        <svg id="equivSvgB" width="400" height="300" style="width: 100%; border: 1px solid #dee2e6; border-radius: 4px;"></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- === SCRIPT BINDINGS === -->
+    <!-- Using type="module" ensures encapsulation. `automata-library.js` exposes essential 
+         API handlers to the global `window` object for the inline `onclick` elements above. -->
+    <script type="module" src="automata-library.js"></script>
+    <script type="module" src="import-export.js"></script>
+</body>
+
+</html>

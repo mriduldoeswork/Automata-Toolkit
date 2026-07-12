@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automata Toolkit - User Manual</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Simplified Top Nav for the Manual -->
+    <div class="top-nav">
+        <h1>Automata Toolkit - Manual</h1>
+    </div>
+
+    <div id="help-view">
+        <div class="help-container">
+            <header>
+                <h2>Automata Toolkit - Advanced User Manual</h2>
+                <p>A professional, client-side environment for the design, simulation, and formal analysis of Finite State Machines and Regular Languages.</p>
+            </header>
+
+            <nav class="table-of-contents" style="background: #f1f3f5; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                <h4 style="margin-top: 0;">Table of Contents</h4>
+                <ul style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 0.9em; margin-bottom: 0;">
+                    <li><a href="#config">Section 1: Configuration</a></li>
+                    <li><a href="#table">Section 2: Transition Table</a></li>
+                    <li><a href="#viz">Section 3: Visualization</a></li>
+                    <li><a href="#sim">Section 4: Tape Simulator</a></li>
+                    <li><a href="#ops">Section 5: Mathematical Operations</a></li>
+                    <li><a href="#regex">Section 6: Regex Engine</a></li>
+                    <li><a href="#cache">Section 7: History Cache</a></li>
+                    <li><a href="#equiv">Section 8: Language Equivalence</a></li>
+                    <li><a href="#syntax">Section 9: File Syntax</a></li>
+                    <li><a href="#faq">Section 10: Troubleshooting</a></li>
+                </ul>
+            </nav>
+
+            <div style="background: #fff3cd; border-left: 5px solid #ffc107; padding: 10px 15px; margin-bottom: 20px;">
+                <strong>Security Note:</strong> This application operates entirely within the client-side environment. No data is transmitted to external servers, ensuring the privacy of academic and research data.
+            </div>
+            
+            <section id="config" class="help-section">
+            <h3>1. Automata Configuration</h3>
+            <p>The left panel of the <b>Workspace</b> is where you define the core properties of your machine:</p>
+            <ul>
+                <li><b>Type:</b> Choose the class of your machine. <b>DFA</b> (Deterministic Finite Automaton), <b>NFA</b> (Non-Deterministic Finite Automaton), or <b>ENFA</b> (Epsilon-NFA).</li>
+                <li><b>States:</b> A comma-separated list of your machine's states (e.g., <code>q0, q1, q2</code>).</li>
+                <li><b>Alphabet:</b> A comma-separated list of valid input symbols (e.g., <code>0, 1</code> or <code>a, b</code>).</li>
+                <li><b>Start State:</b> The single state where execution begins (e.g., <code>q0</code>).</li>
+                <li><b>Accept States:</b> A comma-separated list of final states that result in a successful match (e.g., <code>q2, q3</code>).</li>
+            </ul>
+            <p><i>Note: The toolkit features a "Smart Normalizer." If your state names become too long or complex, it will automatically normalize them to a clean <code>q0, q1...</code> namespace while preserving mathematical integrity.</i></p>
+            </section>
+
+            <section id="table" class="help-section">
+            <h3>2. The Transition Table</h3>
+            <p>Once your configuration is set, the Transition Table allows you to define the state-to-state routing.</p>
+            <ul>
+                <li><b>For DFAs:</b> Use the dropdown menus. By mathematical definition, a DFA transitions to exactly one state per symbol.</li>
+                <li><b>For NFAs / e-NFAs:</b> Use the checkboxes. You can select multiple destination states for a single symbol. e-NFAs will feature an additional column for the epsilon (<code>#</code>) transition, representing a state change without consuming an input character.</li>
+            </ul>
+            </section>
+
+            <section id="viz" class="help-section">
+            <h3>3. Interactive Graph Visualization</h3>
+            <p>Clicking <b>"Draw Automata"</b> triggers the D3.js physics engine to render your machine.</p>
+            <ul>
+                <li><b>Node Dragging:</b> Click and drag any state (circle) to pin it to a specific location. The physics engine will route the edges around it.</li>
+                <li><b>Infinite Canvas:</b> If you drag a node to the edge of the white box, the SVG canvas will automatically expand its boundaries to accommodate large graphs.</li>
+                <li><b>Visual Indicators:</b> Accepting states are denoted by a double-circle. The Start state is denoted by an incoming arrow from nowhere.</li>
+            </ul>
+            </section>
+
+            <section id="sim" class="help-section">
+            <h3>4. Time-Travel Tape Simulator</h3>
+            <p>Test if your machine accepts a specific string of characters while visualizing the exact paths taken.</p>
+            <ul>
+                <li><b>Input Word:</b> Enter the string you want to test (e.g., <code>1011</code>).</li>
+                <li><b>Reset:</b> Loads the word onto the visual tape. For e-NFAs, it automatically calculates the initial <i>Epsilon Closure</i>.</li>
+                <li><b>Next / Back:</b> Step through the input character by character. The application stores an execution history array, allowing you to reverse time if you miss a transition.</li>
+            </ul>
+            <h4>Simulator Color Legend:</h4>
+            <ul style="list-style-type: none; padding-left: 0;">
+                <li class="legend-item"><span class="legend-color" style="background-color: #f39c12;"></span> <span><b>Active Path:</b> The currently active state(s) and transition edges.</span></li>
+                <li class="legend-item"><span class="legend-color" style="background-color: #ffffff;"></span> <span><b>Pending:</b> The next character in the input sequence.</span></li>
+                <li class="legend-item"><span class="legend-color" style="background-color: #fff9c4;"></span> <span><b>Current:</b> The character most recently evaluated.</span></li>
+                <li class="legend-item"><span class="legend-color" style="background-color: #f8f9fa;"></span> <span><b>Processed:</b> Characters that have already been evaluated.</span></li>
+            </ul>
+            </section>
+
+            <section id="ops" class="help-section">
+            <h3>5. Conversions and Mathematical Operations</h3>
+            <p>The toolkit can automatically convert machines using advanced computer science algorithms:</p>
+            <ul>
+                <li><b>Convert to NFA:</b> (For e-NFAs) Removes epsilon transitions and computes extended delta transition paths.</li>
+                <li><b>Convert to DFA:</b> (For NFAs) Uses the formal <i>Subset Construction</i> algorithm to create a deterministic equivalent.</li>
+                <li><b>Minimize DFA:</b> Uses <i>Partition Refinement</i> (k-equivalence classes) to merge identical states and reduce the DFA to its absolute minimal form.</li>
+                <li><b>Convert to Regex:</b> Uses the <i>GNFA (Generalized NFA) State Elimination</i> method to derive a Regular Expression.</li>
+                <li><b>Complement DFA:</b> Inverts the DFA. It first strictly "completes" the DFA (injecting a <code>deadState</code> to ensure a Total Transition Function), then swaps accepting and non-accepting states.</li>
+            </ul>
+            </section>
+
+            <section id="regex" class="help-section">
+            <h3>6. Regular Expression Engine</h3>
+            <p>Work directly with Regular Expressions using the inputs at the top of the Workspace.</p>
+            <ul>
+                <li><b>Convert Regex to eNFA:</b> Compiles a regex string into an e-NFA using Dijkstra's Shunting-yard algorithm and Thompson's Construction.</li>
+                <li><b>Complement Regex:</b> A powerful macro that takes a regex, converts it to an e-NFA, makes it deterministic, minimizes it, complements it, and converts it back into a new Regex representing the inverted language!</li>
+            </ul>
+            <h4>Regex Operator Precedence & Rules:</h4>
+            <ol>
+                <li><b>Parentheses <code>()</code>:</b> Highest precedence for grouping.</li>
+                <li><b>Kleene Star <code>*</code>:</b> Zero or more occurrences.</li>
+                <li><b>Concatenation:</b> Implicit (e.g., <code>ab</code> means <code>a</code> followed by <code>b</code>).</li>
+                <li><b>Union <code>|</code>:</b> Lowest precedence (Logical OR).</li>
+            </ol>
+            <p><i>Note: The engine mathematically simplifies outputs, handling empty sets and epsilon identities. <b>Crucial:</b> Do not use the <code>.</code> character for concatenation; it is handled implicitly.</i></p>
+            </section>
+
+            <section id="cache" class="help-section">
+            <h3>7. Automaton Versions (History Cache)</h3>
+            <p>As you convert machines (e.g., e-NFA ➔ NFA ➔ DFA ➔ Minimized DFA), the application caches the intermediate steps in memory. Use the <b>Automaton Versions</b> buttons to instantly restore and view a previous historical state without having to re-type it.</p>
+            </section>
+
+            <section id="equiv" class="help-section">
+            <h3>8. Language Equivalence</h3>
+            <p>The <b>Test Equivalence</b> view mathematically proves if two different machines (or Regular Expressions) describe the exact same language.</p>
+            <ul>
+                <li><b>Methodology:</b> The engine normalizes both inputs into Minimal DFAs and performs a BFS across their Cartesian Product.</li>
+                <li><b>Inputs:</b> For Representation A and B, you can either upload a <code>.txt</code> file or directly type a Regex.</li>
+                <li><b>Isomorphism Mapping:</b> If the languages match, it displays an Isomorphism map, showing exactly how the minimized states of Machine A mathematically map 1:1 to the minimized states of Machine B.</li>
+                <li><b>Shortest Counter-example:</b> If they differ, the BFS guarantees finding the shortest possible string that one machine accepts while the other rejects.</li>
+            </ul>
+            </section>
+
+            <section id="syntax" class="help-section">
+            <h3>9. File Import, Export, and Syntax</h3>
+            <p>Save your progress natively to your local machine.</p>
+            <ul>
+                <li><b>Export SVG / PNG:</b> Downloads a clean image of your graph.</li>
+                <li><b>Export TXT:</b> Downloads a text file containing your automaton's raw mathematical definition.</li>
+                <li><b>Import TXT:</b> Upload a text file. The parser has a smart fallback: if the file does not match the strict Automaton syntax, it will attempt to read the file's contents as a raw Regular Expression string.</li>
+            </ul>
+
+            <h4>TXT File Format Syntax</h4>
+            <p>To manually write or edit an imported <code>.txt</code> file, follow this exact structure:</p>
+            <pre style="background: #f8f9fa; padding: 10px; border: 1px solid #dee2e6; border-radius: 4px; overflow-x: auto;">
+TYPE: DFA
+STATES: q0, q1, q2
+ALPHABET: 0, 1
+START: q0
+ACCEPT: q2
+TRANSITIONS:
+q0 0 q0
+q0 1 q1
+q1 0 q2
+q1 1 q1
+q2 0 q2
+q2 1 q2</pre>
+            <p><i>Note: Use the <code>#</code> character for epsilon transitions. Ensure the transition lines follow the <code>[fromState] [symbol] [toState]</code> format strictly.</i></p>
+            </section>
+
+            <section id="faq" style="background: #f8f9fa; padding: 25px; border-radius: 8px; border: 1px solid #dee2e6; margin-top: 30px;">
+                <h3 style="margin-top: 0;">10. Troubleshooting and FAQ</h3>
+                <p><strong>Q: Why is my DFA conversion taking a long time?</strong><br>
+                A: Subset construction can lead to an exponential "state explosion" (up to 2<sup>n</sup> states). Ensure your NFA is as simple as possible.</p>
+                
+                <p><strong>Q: The graph nodes are overlapping. How do I fix this?</strong><br>
+                A: Click and drag the nodes to rearrange them. The physics engine will maintain your custom layout until the next redraw.</p>
+
+                <p><strong>Q: I imported a file but the transition table is empty.</strong><br>
+                A: Check that your TXT file matches the syntax in Section 9 exactly, including the "TRANSITIONS:" header.</p>
+            </section>
+
+            <hr style="margin-top: 30px; border: 0; border-top: 1px solid #eee;">
+            <p style="text-align: center; color: #6c757d; font-size: 0.9em;">Designed to make computational theory accessible and interactive.</p>
+        </div>
+    </div>
+</body>
+</html>

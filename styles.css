@@ -1,0 +1,472 @@
+/**
+ * @fileoverview Main Stylesheet for the Automata Toolkit.
+ * Implements CSS Variables for consistent theming, modern CSS Grid/Flexbox 
+ * for responsive layouts, and highly specific SVG styling targeting the D3.js physics engine.
+ */
+
+/* =========================================
+   1. GLOBAL VARIABLES & BASE LAYOUT
+   ========================================= */
+
+:root {
+  --primary-color: #007bff;
+  --primary-hover: #0056b3;
+  --active-color: #f39c12;
+  --active-bg: #ffeb3b;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  background-color: #f8f9fa;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* =========================================
+   2. NAVIGATION & MAIN VIEWS
+   ========================================= */
+
+.top-nav {
+  background: #ffffff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  z-index: 100;
+}
+
+.top-nav h1 {
+  margin: 0;
+  font-size: 1.5em;
+  color: var(--primary-color);
+}
+
+.nav-btn {
+  background: #e9ecef;
+  color: #333;
+}
+.nav-btn.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+/* The primary workspace utilizes CSS Grid to strictly separate 
+   the configuration panel (left) from the interactive canvas (right). */
+#workspace-view {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 20px;
+  padding: 20px;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* Left Panel: Scrollable container for forms and action buttons */
+#left-panel {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  max-height: calc(100vh - 40px);
+}
+
+/* Right Panel: Contains the sticky simulation tape and D3 Canvas */
+#right-panel {
+  overflow: auto;
+  max-height: calc(100vh - 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  container-type: inline-size;
+}
+
+/* =========================================
+   3. FORM ELEMENTS & TRANSITION TABLES
+   ========================================= */
+
+input[type="text"], select {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Checkbox List Styling: Specifically designed for NFA/e-NFA inputs 
+   where multiple target states can be selected for a single transition. */
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-height: 100px; /* Limits height so table doesn't explode */
+  overflow-y: auto;
+  background: #ffffff;
+  padding: 5px;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  text-align: left;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85em;
+  cursor: pointer;
+  white-space: nowrap;
+  width: 100%;
+  padding: 2px 0;
+}
+
+.checkbox-item input {
+  width: auto; /* Overrides the 100% width from general input styling */
+  margin: 0;
+  cursor: pointer;
+}
+
+.checkbox-item:hover {
+  background-color: #f1f3f5;
+}
+
+/* Dynamically Generated Transition Table */
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 15px;
+  font-size: 0.9em;
+}
+
+th, td {
+  border: 1px solid #dee2e6;
+  padding: 8px;
+  text-align: center;
+  vertical-align: top;
+}
+
+th {
+  background-color: #e9ecef;
+}
+
+/* =========================================
+   4. BUTTONS & STATUS INDICATORS
+   ========================================= */
+
+button {
+  cursor: pointer;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background-color: var(--primary-hover);
+}
+
+.controls {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.status {
+  margin-top: 20px;
+  padding: 15px;
+  background: #343a40;
+  color: #00ff00;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  border-radius: 4px;
+  min-height: 20px;
+}
+
+/* =========================================
+   5. D3.JS SVG GRAPH STYLING
+   ========================================= */
+
+svg {
+  border: 1px solid #ccc;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+/* Graph Nodes (States) */
+.state {
+  fill: #fff;
+  stroke: black;
+  stroke-width: 2.5;
+  transition: fill 0.3s, stroke-width 0.3s;
+}
+
+/* Active state triggered during tape simulation */
+.state.active {
+  fill: var(--active-bg);
+  stroke: var(--active-color);
+  stroke-width: 4;
+}
+
+/* Inner ring to mathematically denote an Accepting/Final State */
+.final-inner {
+  fill: none;
+  stroke: black;
+  stroke-width: 2;
+}
+
+/* Graph Links (Transitions) */
+.edge {
+  stroke: black;
+  stroke-width: 2;
+  fill: none;
+}
+
+.edge-label {
+  font-size: 14px;
+  fill: black; 
+}
+
+/* Highlights edges currently being traversed in simulation */
+.edge.active {
+  stroke: var(--active-color);
+}
+
+marker path {
+  fill: black;
+}
+
+marker[id^="arrow-active"] path {
+  fill: var(--active-color);
+}
+
+/* Text label dynamically positioned inside the state circle */
+.node-label {
+  font-size: 14px;
+  pointer-events: none;
+  fill: black;
+}
+
+#visualization-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 100%;
+    align-self: flex-start;
+}
+
+/* =========================================
+   6. TAPE SIMULATOR STYLING
+   ========================================= */
+
+#tape-container {
+    display: flex;
+    gap: 25px 5px;
+    padding: 15px;
+    background: #e9ecef;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    min-height: 50px;
+    align-items: center;
+    flex-wrap: wrap;
+    position: sticky; /* Keeps tape visible while panning large SVGs */
+    top: 0;
+    left: 0;
+    z-index: 10;
+    width: 100%;
+    width: 100cqw;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    align-self: flex-start;
+}
+
+/* Individual character blocks on the visual string tape */
+.tape-cell {
+    width: 35px;
+    height: 40px;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    border: 1px solid #adb5bd;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    position: relative;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+/* Visual indicator mapping to the current simulation 'playhead' */
+.tape-cell.next-to-read::after {
+    content: '▲';
+    position: absolute;
+    bottom: -20px;
+    color: var(--primary-color);
+    font-size: 12px;
+}
+
+/* Character that was mathematically evaluated on the last step */
+.tape-cell.just-read {
+    background: #fff9c4;
+    border-color: var(--active-color);
+}
+
+/* Characters that have already been evaluated and shifted past */
+.tape-cell.processed {
+    color: #adb5bd;
+    background: #f8f9fa;
+    border-color: #dee2e6;
+}
+
+/* =========================================
+   7. EQUIVALENCE VIEW STYLING
+   ========================================= */
+
+#equivalence-view {
+    display: none;
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Equivalence Modal / Section Styles */
+.equivalence-container {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 20px;
+    margin-top: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.equivalence-split {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.equivalence-pane {
+    flex: 1;
+    padding: 15px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+}
+
+.equivalence-pane h3 {
+    margin-top: 0;
+    text-align: center;
+    color: var(--primary-color);
+}
+
+.equiv-input-group {
+    margin-bottom: 15px;
+}
+
+#equivResult {
+    display: none;
+    padding: 15px;
+    border-radius: 4px;
+    background: #e9ecef;
+    border: 1px solid #ced4da;
+    text-align: center;
+}
+
+.isomorphism-list {
+    list-style-type: none;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+}
+
+.isomorphism-list li {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+
+/* =========================================
+   8. HELP / GUIDE VIEW STYLING
+   ========================================= */
+
+#help-view {
+    padding: 20px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.help-container {
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    padding: 40px 60px;
+    margin: 0 auto;
+    max-width: 900px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.help-container h2 {
+    color: var(--primary-color);
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 10px;
+    margin-top: 0;
+}
+
+.help-container h3 {
+    color: #495057;
+    margin-top: 25px;
+}
+
+.help-container ul, .help-container ol {
+    margin-bottom: 20px;
+}
+
+.help-container li {
+    margin-bottom: 8px;
+}
+
+.help-container code {
+    background: #f8f9fa;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-family: 'Courier New', Courier, monospace;
+    border: 1px solid #dee2e6;
+}
+
+.help-section {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.help-section:last-of-type {
+    border-bottom: none;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 3px;
+    border: 1px solid #ced4da;
+    flex-shrink: 0;
+}
